@@ -1,0 +1,85 @@
+Dump 1090
+  C port: https://github.com/antirez/dump1090
+C++ port: https://github.com/JvanKatwijk/qt-1090
+
+	decodes ADS-B data so I can use it
+
+	PORT
+
+	30001 - Inbound - RAW Format
+
+	30002 - Outbound - RAW Format
+
+	30003 - Outbound - Base station Format
+
+	30004 - Inbound - Beast format. No Longer Used??? unless you have it configured manually
+
+	30005 - Outbound - Beast format
+
+	30104 - Inbound - Beast format
+
+
+shows format of message types: http://woodair.net/sbs/article/barebones42_socket_data.htm
+
+data stream:
+STA,,5,179,400AE7,10103,2008/11/28,14:58:51.153,2008/11/28,14:58:51.153,RM
+MSG,4,5,211,4CA2D6,10057,2008/11/28,14:53:49.986,2008/11/28,14:58:51.153,,,408.3,146.4,,,64,,,,,
+MSG,8,5,211,4CA2D6,10057,2008/11/28,14:53:50.391,2008/11/28,14:58:51.153,,,,,,,,,,,,0
+MSG,4,5,211,4CA2D6,10057,2008/11/28,14:53:50.391,2008/11/28,14:58:51.153,,,408.3,146.4,,,64,,,,,
+MSG,3,5,211,4CA2D6,10057,2008/11/28,14:53:50.594,2008/11/28,14:58:51.153,,37000,,,51.45735,-1.02826,,,0,0,0,0
+
+Message types:
+	MSG,1 : ES Identification and Category
+	MSG,2 : ES Surface Position Message
+	MSG,3 : ES Airborne Position Message
+	MSG,4 : ES Airborne Velocity Message
+	MSG,5 : Surveillance Alt Message
+	MSG,6 : Surveillance ID Message
+	MSG,7 : Air To Air Message
+	MSG,8 : All Call Reply
+
+Field Data:
+	Field 1:
+		Message type	 (MSG, STA, ID, AIR, SEL or CLK)
+	Field 2:
+		Transmission Type	 MSG sub types 1 to 8. Not used by other message types.
+	Field 3:
+		Session ID	 Database Session record number
+	Field 4:
+		AircraftID	 Database Aircraft record number
+	Field 5:
+		HexIdent	 Aircraft Mode S hexadecimal code
+	Field 6:
+		FlightID	 Database Flight record number
+	Field 7:
+		Date message generated	  As it says
+	Field 8:
+		Time message generated	  As it says
+	Field 9:
+		Date message logged	  As it says
+	Field 10:
+		Time message logged	  As it says
+	Field 11:
+		Callsign	 An eight digit flight ID - can be flight number or registration (or even nothing).
+	Field 12:
+		Altitude	 Mode C altitude. Height relative to 1013.2mb (Flight Level). Not height AMSL..
+	Field 13:
+		GroundSpeed	 Speed over ground (not indicated airspeed)
+	Field 14:
+		Track	 Track of aircraft (not heading). Derived from the velocity E/W and velocity N/S
+	Field 15:
+		Latitude	 North and East positive. South and West negative.
+	Field 16:
+		Longitude	 North and East positive. South and West negative.
+	Field 17:
+		VerticalRate	 64ft resolution
+	Field 18:
+		Squawk	 Assigned Mode A squawk code.
+	Field 19:
+		Alert (Squawk change)	 Flag to indicate squawk has changed.
+	Field 20:
+		Emergency	 Flag to indicate emergency code has been set
+	Field 21:
+		SPI (Ident)	 Flag to indicate transponder Ident has been activated.
+	Field 22:
+		IsOnGround	 Flag to indicate ground squat switch is active
