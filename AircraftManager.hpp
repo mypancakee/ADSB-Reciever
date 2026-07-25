@@ -45,7 +45,7 @@ public:
 
         if (inserted)
         {
-            Debug::success(
+            Debug::info(
                 "AircraftManager",
                 "New aircraft added: "
                 + message.hex_ident

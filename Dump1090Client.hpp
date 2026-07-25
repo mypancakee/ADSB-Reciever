@@ -112,7 +112,7 @@ private:
                     throw std::runtime_error("Connection failed");
                 }
 
-                Debug::success("Dump1090Client", "Connected successfully to dump1090");
+                Debug::success("Dump1090Client", "Connected successfully to " + host_address + ":" + std::to_string(port_number));
                 was_connected = true; // Connection established successfully
                 return; 
             }
@@ -123,13 +123,13 @@ private:
                 if (was_connected || is_initial_connection)
                 {
                     // Print both lines (lost + trying) only on the initial crash event
-                    Debug::error("Dump1090Client", "Connection to dump1090 lost");
+                    Debug::error("Dump1090Client", "Connection to " + host_address + ":" + std::to_string(port_number) + " lost");
                     was_connected = false;
                 }
                 else
                 {
                     // Subsequent failures only print the ongoing attempts log to avoid log spam
-                    Debug::info("Dump1090Client", "Trying to connect to dump1090");
+                    Debug::info("Dump1090Client", "Trying to connect to " + host_address + ":" + std::to_string(port_number));
                 }
                 
                 std::this_thread::sleep_for(std::chrono::seconds(5));
