@@ -4,8 +4,21 @@
 #include <optional>
 #include <chrono>
 #include <utility> // For std::move
+#include <deque>
 
 #include "BaseStationMessage.hpp"
+
+struct AircraftTrackPoint
+{
+    double latitude;
+    double longitude;
+
+    int altitude;
+
+    double ground_speed;
+
+    std::chrono::steady_clock::time_point timestamp;
+};
 
 class Aircraft {
 private:
@@ -63,6 +76,9 @@ public:
 
     std::chrono::steady_clock::time_point last_seen;
 
+    // Historic Data
+    std::deque<AircraftTrackPoint> track_history;
+
 public:
     Aircraft() : last_seen(std::chrono::steady_clock::now()) {}
 
@@ -94,6 +110,18 @@ public:
         update_if_present(emergency,      message.emergency);
         update_if_present(spi,            message.spi);
         update_if_present(is_on_ground,   message.is_on_ground);
+
+        if (message.latitude.has_value() && message.longitude.has_value() && message.altitude.has_value() && message.ground_speed.has_value()){
+            track_history.push_back(
+                {
+                    message.latitude.value(),
+                    message.longitude.value(),
+                    message.altitude.value(),
+                    message.ground_speed.value(),
+                    last_seen
+                }
+            );
+        }
     }
 
     std::chrono::seconds seconds_since_last_seen() const {

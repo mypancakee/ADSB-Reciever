@@ -1,13 +1,13 @@
 #include <iostream>
 #include <string>
+#include <thread>
+#include <chrono>
 
 #include "../Debug.hpp"
 #include "../AircraftManager.hpp"
 #include "../BaseStationMessage.hpp"
 #include "UdpReciever.hpp"
 
-// Your clear_screen(), print_aircraft(),
-// and print_all_aircraft() stay exactly the same.
 
 void clear_screen()
 {
@@ -15,8 +15,10 @@ void clear_screen()
         << "\033[2J\033[1;1H";
 }
 
+
 void print_aircraft(
-    const Aircraft& aircraft)
+    const Aircraft& aircraft
+)
 {
     std::cout
         << "-----------------------------\n";
@@ -145,7 +147,8 @@ void print_aircraft(
 
 
 void print_all_aircraft(
-    const AircraftManager& manager)
+    const AircraftManager& manager
+)
 {
     std::cout
         << "=================================\n";
@@ -163,10 +166,14 @@ void print_all_aircraft(
         << "\n\n";
 
 
+    auto aircraft_snapshot =
+        manager.get_all_aircraft();
+
+
     for (
         const auto& [hex_ident, aircraft]
         :
-        manager.get_all_aircraft()
+        aircraft_snapshot
     )
     {
         print_aircraft(
@@ -183,57 +190,95 @@ int main()
         "Program started"
     );
 
+
     try
     {
         AircraftManager manager;
+
 
         Debug::log(
             "Main",
             "Starting UDP receiver"
         );
 
+
         UdpReceiver receiver(
             4000
         );
+
 
         Debug::success(
             "Main",
             "Listening for aircraft data"
         );
 
+
+        // -----------------------------------------
+        // Receiver thread
+        // -----------------------------------------
+
+        std::thread receiver_thread(
+            [&]()
+            {
+                while (true)
+                {
+                    std::string line =
+                        receiver.read_line();
+
+
+                    BaseStationMessage message(
+                        line
+                    );
+
+
+                    manager.process_message(
+                        message
+                    );
+                }
+            }
+        );
+
+
+        // -----------------------------------------
+        // Main display loop
+        // -----------------------------------------
+
         while (true)
         {
-            std::string line =
-                receiver.read_line();
-
-            BaseStationMessage message(
-                line
-            );
-
-            manager.process_message(
-                message
-            );
-
             manager.remove_stale_aircraft(
                 60
             );
 
+
             clear_screen();
+
 
             print_all_aircraft(
                 manager
             );
+
+
+            std::this_thread::sleep_for(
+                std::chrono::seconds(1)
+            );
         }
+
+
+        receiver_thread.join();
     }
-    catch (const std::exception& exception)
+    catch (
+        const std::exception& exception
+    )
     {
         Debug::error(
             "Main",
             exception.what()
         );
 
+
         return 1;
     }
+
 
     return 0;
 }

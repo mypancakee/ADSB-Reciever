@@ -2,11 +2,11 @@
 
 #include <unordered_map>
 #include <string>
-#include <utility>
+#include <mutex>
+#include <cstddef>
 
 #include "Aircraft.hpp"
 #include "Debug.hpp"
-
 
 class AircraftManager
 {
@@ -16,6 +16,8 @@ private:
         std::string,
         Aircraft
     > aircraft;
+
+    mutable std::mutex mutex;
 
 
 public:
@@ -28,18 +30,18 @@ public:
         const BaseStationMessage& message
     )
     {
+        std::lock_guard lock(mutex);
+
         if (message.hex_ident.empty())
         {
             return;
         }
-
 
         auto [it, inserted] =
             aircraft.try_emplace(
                 message.hex_ident,
                 message.hex_ident
             );
-
 
         if (inserted)
         {
@@ -50,7 +52,6 @@ public:
             );
         }
 
-
         it->second.update(message);
     }
 
@@ -59,21 +60,21 @@ public:
     // Get one aircraft
     // -----------------------------------------
 
-    Aircraft* get_aircraft(
+    Aircraft get_aircraft(
         const std::string& hex_ident
-    )
+    ) const
     {
+        std::lock_guard lock(mutex);
+
         auto it =
             aircraft.find(hex_ident);
 
-
         if (it == aircraft.end())
         {
-            return nullptr;
+            return Aircraft();
         }
 
-
-        return &it->second;
+        return it->second;
     }
 
 
@@ -81,11 +82,13 @@ public:
     // Get all aircraft
     // -----------------------------------------
 
-    const std::unordered_map<
+    std::unordered_map<
         std::string,
         Aircraft
-    >& get_all_aircraft() const
+    > get_all_aircraft() const
     {
+        std::lock_guard lock(mutex);
+
         return aircraft;
     }
 
@@ -98,6 +101,8 @@ public:
         int timeout_seconds
     )
     {
+        std::lock_guard lock(mutex);
+
         for (
             auto it = aircraft.begin();
             it != aircraft.end();
@@ -114,7 +119,6 @@ public:
                     "Removing stale aircraft: "
                     + it->first
                 );
-
 
                 it =
                     aircraft.erase(it);
@@ -133,6 +137,8 @@ public:
 
     std::size_t aircraft_count() const
     {
+        std::lock_guard lock(mutex);
+
         return aircraft.size();
     }
 };
