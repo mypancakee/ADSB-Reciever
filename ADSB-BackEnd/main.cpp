@@ -5,26 +5,33 @@
 #include "../AircraftManager.hpp"
 #include "UdpBroadcaster.hpp"
 
-while (true)
-{
-    std::string line =
-        dump1090.read_line();
+int main(){
 
-    BaseStationMessage message(line);
+    Dump1090Client dump1090("127.0.0.1, 30003");
+    AircraftManager manager;
+    UdpBroadcaster broadcaster("192.168.2.255",4000);
 
-    manager.process_message(message);
-
-    Aircraft* aircraft =
-        manager.get_aircraft(
-            message.hex_ident
-        );
-
-    if (aircraft != nullptr)
+    while (true)
     {
-        broadcaster.send(
-            serialize_aircraft(*aircraft)
-        );
-    }
+        std::string line =
+            dump1090.read_line();
 
-    manager.remove_stale_aircraft(60);
+        BaseStationMessage message(line);
+
+        manager.process_message(message);
+
+        Aircraft* aircraft =
+            manager.get_aircraft(
+                message.hex_ident
+            );
+
+        if (aircraft != nullptr)
+        {
+            broadcaster.send(
+                serialize_aircraft(*aircraft)
+            );
+        }
+
+        manager.remove_stale_aircraft(60);
+    }
 }
