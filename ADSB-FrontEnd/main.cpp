@@ -1,25 +1,19 @@
 #include <iostream>
 #include <string>
 
-#include "Debug.hpp"
-#include "AircraftManager.hpp"
-#include "Dump1090Client.hpp"
+#include "./Debug.hpp"
+#include "./AircraftManager.hpp"
+#include "./BaseStationMessage.hpp"
+#include "UdpReciever.hpp"
 
-
-// --------------------------------------------------
-// Clear the console screen
-// --------------------------------------------------
+// Your clear_screen(), print_aircraft(),
+// and print_all_aircraft() stay exactly the same.
 
 void clear_screen()
 {
     std::cout
         << "\033[2J\033[1;1H";
 }
-
-
-// --------------------------------------------------
-// Print one aircraft
-// --------------------------------------------------
 
 void print_aircraft(
     const Aircraft& aircraft)
@@ -150,10 +144,6 @@ void print_aircraft(
 }
 
 
-// --------------------------------------------------
-// Print all aircraft
-// --------------------------------------------------
-
 void print_all_aircraft(
     const AircraftManager& manager)
 {
@@ -186,10 +176,6 @@ void print_all_aircraft(
 }
 
 
-// --------------------------------------------------
-// Main
-// --------------------------------------------------
-
 int main()
 {
     Debug::log(
@@ -197,122 +183,57 @@ int main()
         "Program started"
     );
 
-
     try
     {
-        Debug::log(
-            "Main",
-            "Creating AircraftManager"
-        );
-
-
         AircraftManager manager;
 
+        Debug::log(
+            "Main",
+            "Starting UDP receiver"
+        );
+
+        UdpReceiver receiver(
+            4000
+        );
 
         Debug::success(
             "Main",
-            "AircraftManager created successfully"
+            "Listening for aircraft data"
         );
-
-
-        Debug::log(
-            "Main",
-            "Connecting to dump1090"
-        );
-
-
-        Dump1090Client dump1090(
-            "127.0.0.1",
-            30003
-        );
-
-
-        Debug::success(
-            "Main",
-            "Dump1090 connection established"
-        );
-
-
-        Debug::log(
-            "Main",
-            "Entering main tracking loop"
-        );
-
 
         while (true)
         {
-            // --------------------------------------
-            // Read one line from dump1090
-            // --------------------------------------
-
             std::string line =
-                dump1090.read_line();
-
-
-            // --------------------------------------
-            // Parse BaseStation message
-            // --------------------------------------
-
-            Debug::log(
-                "Main",
-                "Parsing BaseStation message"
-            );
-
+                receiver.read_line();
 
             BaseStationMessage message(
                 line
             );
 
-
-            // --------------------------------------
-            // Process aircraft
-            // --------------------------------------
-
-            Debug::log(
-                "Main",
-                "Processing aircraft message"
-            );
-
-
             manager.process_message(
                 message
             );
-
-
-            // --------------------------------------
-            // Remove stale aircraft
-            // --------------------------------------
 
             manager.remove_stale_aircraft(
                 60
             );
 
-
-            // --------------------------------------
-            // Refresh display
-            // --------------------------------------
-
             clear_screen();
-
 
             print_all_aircraft(
                 manager
             );
         }
     }
-    catch (
-        const std::exception& exception
-    )
+    catch (const std::exception& exception)
     {
         Debug::error(
             "Main",
             exception.what()
         );
 
-
         return 1;
     }
-
 
     return 0;
 }
