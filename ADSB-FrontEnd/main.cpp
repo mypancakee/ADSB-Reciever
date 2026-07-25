@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 
-#include "./Debug.hpp"
-#include "./AircraftManager.hpp"
-#include "./BaseStationMessage.hpp"
+#include "../Debug.hpp"
+#include "../AircraftManager.hpp"
+#include "../BaseStationMessage.hpp"
 #include "UdpReciever.hpp"
 
 // Your clear_screen(), print_aircraft(),
