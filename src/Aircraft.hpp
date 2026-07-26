@@ -133,4 +133,5 @@ public:
     bool is_stale(int timeout_seconds = 60) const {
         return seconds_since_last_seen().count() >= timeout_seconds;
     }
+
 };

@@ -60,21 +60,14 @@ public:
     // Get one aircraft
     // -----------------------------------------
 
-    Aircraft get_aircraft(
-        const std::string& hex_ident
-    ) const
-    {
-        std::lock_guard lock(mutex);
+    Aircraft* get_aircraft(const std::string& hex_ident){
+        auto it = aircraft.find(hex_ident);
 
-        auto it =
-            aircraft.find(hex_ident);
-
-        if (it == aircraft.end())
-        {
-            return Aircraft();
+        if(it == aircraft.end()){
+            return nullptr;
         }
 
-        return it->second;
+        return &it->second;
     }
 
 

@@ -120,7 +120,7 @@ private:
             {
                 close_current_socket();
                 
-                if (was_connected || is_initial_connection)
+                if (was_connected)
                 {
                     // Print both lines (lost + trying) only on the initial crash event
                     Debug::error("Dump1090Client", "Connection to " + host_address + ":" + std::to_string(port_number) + " lost");
