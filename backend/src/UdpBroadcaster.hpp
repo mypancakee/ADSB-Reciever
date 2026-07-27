@@ -16,7 +16,7 @@
 
 #endif
 
-#include "../Debug.hpp"
+#include <Debug.hpp>
 
 
 class UdpBroadcaster

@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "nlohmann/json.hpp"
-#include "Aircraft.hpp"
+#include <nlohmann/json.hpp>
+#include <Aircraft.hpp>
 
 
 class AircraftJsonSerializer{

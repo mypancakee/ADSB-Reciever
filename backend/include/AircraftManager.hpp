@@ -5,8 +5,8 @@
 #include <mutex>
 #include <cstddef>
 
-#include "Aircraft.hpp"
-#include "Debug.hpp"
+#include <Aircraft.hpp>
+#include <Debug.hpp>
 
 class AircraftManager
 {

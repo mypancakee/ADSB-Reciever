@@ -6,7 +6,7 @@
 #include <utility> // For std::move
 #include <deque>
 
-#include "BaseStationMessage.hpp"
+#include <BaseStationMessage.hpp>
 
 struct AircraftTrackPoint
 {
